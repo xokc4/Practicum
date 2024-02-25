@@ -24,8 +24,9 @@ namespace Practicum
         /// <param name="path">путь</param>
         /// <param name="NameOrganization">имя организации</param>
         /// <param name="UpdateName">обнавленное имя</param>
-        public static void SaveExcel(string path, string NameOrganization, string UpdateName)
+        public static bool SaveExcel(string path, string NameOrganization, string UpdateName)
         {
+            bool flag = true;
             ///Чтение файла
             using (SpreadsheetDocument document = SpreadsheetDocument.Open(path, true))
             {
@@ -47,6 +48,7 @@ namespace Practicum
                         // Если название организации совпадает с искомым
                         if (organizationName == NameOrganization)
                         {
+                            flag = true;
                             // имя клиента находится в 4 ячейке каждой строки
                             Cell clientNameCell = row.Elements<Cell>().ElementAtOrDefault(3);
 
@@ -57,11 +59,16 @@ namespace Practicum
                                 clientNameCell.DataType = new EnumValue<CellValues>(CellValues.String);
                             }
                         }
+                        else
+                        {
+                            flag = false;
+                        }
                     }
 
                     workbookPart.Workbook.Save();//Сохраняем изменения 
+                    
                 }
-
+                return flag;
             }
 
         }

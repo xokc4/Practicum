@@ -24,6 +24,7 @@ class Program
     /// </summary>
     public static void FunctionalViewUp()
     {
+        bool flag = true;
         Console.WriteLine("Введите пожалуйста абсолютный (полный) путь к файлу");
         string path= Console.ReadLine();//полный путь
         try
@@ -34,8 +35,9 @@ class Program
         catch(Exception e )
         {
             Console.WriteLine($"Ошибка, {e}");
+            flag = false;
         }
-        while(true)//вечный цикл
+        while(flag)//вечный цикл
         {
             Console.WriteLine("Напишите 1 чтобы найти информацию о товаре, напишите 2 чтобы изменить имя клиента, " +
                 "напишите 3 чтобы найти золотого клиента и любое число чтобы выйти");
@@ -56,8 +58,8 @@ class Program
                     break;
             }
         }
-        
 
+        FunctionalViewUp();
     }
     /// <summary>
     /// View метод для поиска информации про товар
@@ -69,11 +71,18 @@ class Program
         try
         {
             List<InformationOutput> ClientsByProduct = WorkingWithData.CustomerSearch(NameSearchProduct, FullBd);// Bakcend Коллекция с ответом
-            foreach (InformationOutput output in ClientsByProduct)// перебор коллекции для вывода информации
+            if (ClientsByProduct.Count != 0)
             {
-                Console.WriteLine($"Организация: {output.Clients.OrganizationName}, имя клиента: {output.Clients.ContactPerson}," +
-                    $" адресс клиента: {output.Clients.Address}. Количество товара: {output.Orders.RequiredQuantity}, " +
-                    $"цена продукта: {output.Products.Price}, дата заказа: {output.Orders.OrderDate}");
+                foreach (InformationOutput output in ClientsByProduct)// перебор коллекции для вывода информации
+                {
+                    Console.WriteLine($"Организация: {output.Clients.OrganizationName}, имя клиента: {output.Clients.ContactPerson}," +
+                        $" адресс клиента: {output.Clients.Address}. Количество товара: {output.Orders.RequiredQuantity}, " +
+                        $"цена продукта: {output.Products.Price}, дата заказа: {output.Orders.OrderDate}");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Нет такого продукта");
             }
         }
         catch(Exception e)
@@ -94,8 +103,15 @@ class Program
         try
         {
 
-            WorkExcel.SaveExcel(path, NameOrganization, NameClient);
-            Console.WriteLine("Изменение произошло");
+           bool FlagSave= WorkExcel.SaveExcel(path, NameOrganization, NameClient);
+        if (FlagSave)
+            {
+                Console.WriteLine("Изменение произошло");
+            }
+            else
+            {
+                Console.WriteLine("Нет такой организации");
+            }
         }
         catch(Exception ex)
         {
@@ -107,19 +123,28 @@ class Program
     /// </summary>
     public static void GoldClientsView()
     {
-        Console.WriteLine("Введите год и месяц для определения золотого клиента");
-        Console.WriteLine("Введите год");
-        int year = Convert.ToInt32(Console.ReadLine());//переменная год
-        Console.WriteLine("Введите месяц");
-        int month = Convert.ToInt32(Console.ReadLine());// переменная месяц
-        Clients clientsGold = WorkingWithData.GoldClients(year, month, FullBd);//Bakcend нахождение золотого клиента
-        if(clientsGold != null)
+        try
         {
-            Console.WriteLine($"Золотой клиент: {clientsGold.OrganizationName}, контактное лицо: {clientsGold.ContactPerson} На {month}/{year}");
+
+
+            Console.WriteLine("Введите год и месяц для определения золотого клиента");
+            Console.WriteLine("Введите год");
+            int year = Convert.ToInt32(Console.ReadLine());//переменная год
+            Console.WriteLine("Введите месяц");
+            int month = Convert.ToInt32(Console.ReadLine());// переменная месяц
+            Clients clientsGold = WorkingWithData.GoldClients(year, month, FullBd);//Bakcend нахождение золотого клиента
+            if (clientsGold != null)
+            {
+                Console.WriteLine($"Золотой клиент: {clientsGold.OrganizationName}, контактное лицо: {clientsGold.ContactPerson} На {month}/{year}");
+            }
+            else
+            {
+                Console.WriteLine("Нет заказов");
+            }
         }
-        else
+        catch(Exception ex)
         {
-            Console.WriteLine("Нет заказов");
+            Console.WriteLine("Ввели не правильные данные ");
         }
     }
   

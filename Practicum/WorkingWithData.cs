@@ -23,19 +23,32 @@ namespace Practicum
         /// <returns></returns>
         public static List<InformationOutput> CustomerSearch(string NameSearchProduct,FullBd fullBd)
         {
-            ordersBD = fullBd.orders;
-            clientsBD = fullBd.clients;
-            productsBD = fullBd.products;
-            List<InformationOutput> InfCliensAndOrders = new List<InformationOutput>();//лист для хронения  ответа
-            Products productsOne = productsBD.FirstOrDefault(x => x.ProductName == NameSearchProduct);//Объект продукта кторый нашли с помощью имени
-            List<Orders> OrdesSearch = ordersBD.Where(x => x.ProductCode == productsOne.ProductCode).ToList();// Нахождения листа с заказами по айди продукта
-            
-            foreach(var orders in OrdesSearch)//Цикл коллекции заказов для нахождения клиентов и запись информации в InfCliensAndOrders
+            try
             {
-                Clients clients =  clientsBD.FirstOrDefault(x=>x.ClientCode==orders.ClientCode);//Клиент
-                InfCliensAndOrders.Add(new InformationOutput(productsOne, clients, orders));//добавление
+
+
+                ordersBD = fullBd.orders;
+                clientsBD = fullBd.clients;
+                productsBD = fullBd.products;
+                List<InformationOutput> InfCliensAndOrders = new List<InformationOutput>();//лист для хронения  ответа
+                Products productsOne = productsBD.FirstOrDefault(x => x.ProductName == NameSearchProduct);//Объект продукта кторый нашли с помощью имени
+                if(productsOne == null)
+                {
+                    return new List<InformationOutput>();
+                }
+                List<Orders> OrdesSearch = ordersBD.Where(x => x.ProductCode == productsOne.ProductCode).ToList();// Нахождения листа с заказами по айди продукта
+
+                foreach (var orders in OrdesSearch)//Цикл коллекции заказов для нахождения клиентов и запись информации в InfCliensAndOrders
+                {
+                    Clients clients = clientsBD.FirstOrDefault(x => x.ClientCode == orders.ClientCode);//Клиент
+                    InfCliensAndOrders.Add(new InformationOutput(productsOne, clients, orders));//добавление
+                }
+                return InfCliensAndOrders;
             }
-            return InfCliensAndOrders;
+            catch(Exception ex)
+            {
+                return new List<InformationOutput>();
+            }
         }
         /// <summary>
         /// Метод для нахождения "золотого клиента"
